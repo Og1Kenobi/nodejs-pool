@@ -8,7 +8,6 @@ if [[ `whoami` == "root" ]]; then
 fi
 ROOT_SQL_PASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 CURUSER=$(whoami)
-sudo echo "$CURUSER ALL=(ALL) NOPASSWD:ALL" | sudo tee --append /etc/sudoers
 sudo apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
 echo "I am going to reboot now. When I am back up, please run the deploy.bash script one more time"
