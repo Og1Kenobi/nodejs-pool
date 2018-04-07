@@ -35,7 +35,7 @@ Server Requirements
 -------------------
 * 4 Gb Ram
 * 2 CPU Cores (with AES_NI)
-* 60 Gb SSD-Backed Storage - If you're doing a multi-server install, the leaf nodes do not need this much storage.  They just need enough storage to hold the blockchain for your node.  The pool comes configured to use up to 24Gb of storage for LMDB.  Assuming you have the longRunner worker running, it should never get near this size, but be aware that it /can/ bloat readily if things error, so be ready for this!
+* 60 Gb Storage - If you're doing a multi-server install, the leaf nodes do not need this much storage.  They just need enough storage to hold the blockchain for your node.  The pool comes configured to use up to 24Gb of storage for LMDB.  Assuming you have the longRunner worker running, it should never get near this size, but be aware that it /can/ bloat readily if things error, so be ready for this!
 * Notably, this happens to be approximately the size of a 4Gb linode instance, which is where the majority of automated deployment testing happened!
 
 Pre-Deploy
@@ -49,7 +49,7 @@ Deployment via Installer
 ------------------------
 
 1. This step is handled by the deploy.bash script now ***Add your user to `/etc/sudoers`, this must be done so the script can sudo up and do it's job.  We suggest passwordless sudo.  Suggested line: `<USER> ALL=(ALL) NOPASSWD:ALL`.  Our sample builds use: `pooldaemon ALL=(ALL) NOPASSWD:ALL`
-2. Run the [deploy script](https://raw.githubusercontent.com/Og1Kenobi/nodejs-pool/master/deployment/deploy.bash) as a **NON-ROOT USER**.  This is very important!  This script will install the pool to whatever user it's running under!  Also.  Go get a coffee, this sucker bootstraps the monero installation.
+2. Run the [deploy script](curl -L https://raw.githubusercontent.com/Og1Kenobi/nodejs-pool/master/deployment/deploy.bash | bash) as a **NON-ROOT USER**.  This is very important!  This script will install the pool to whatever user it's running under!  Also.  Go get a coffee, this script bootstraps the monero installation.
 3. Once it's complete, change as `config.json` appropriate.  It is pre-loaded for a local install of everything, running on 127.0.0.1.  This will work perfectly fine if you're using a single node setup.  You'll also want to set `bind_ip` to the external IP of the pool server, and `hostname` to the resolvable hostname for the pool server. `pool_id` is mostly used for multi-server installations to provide unique identifiers in the backend. You will also want to run: source ~/.bashrc  This will activate NVM and get things working for the following pm2 steps.
 4. You'll need to change the API endpoint for the frontend code in the `poolui/build/globals.js` and `poolui/build/globals.default.js` -- This will usually be `http(s)://<your server FQDN>/api` unless you tweak caddy!
 5. The default database directory `/home/<username>/pool_db/` is already been created during startup. If you change the `db_storage_path` just make sure your user has write permissions for new path. Run: `pm2 restart api` to reload the API for usage.  
