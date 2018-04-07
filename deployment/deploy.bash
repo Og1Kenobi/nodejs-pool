@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "This assumes that you are doing a green-field install.  If you're not, please exit in the next 15 seconds."
+echo "This assumes that you are doing a green-field install and have already ran "sudo apt upgrade" .  If you're not, please exit in the next 15 seconds."
 sleep 15
 echo "Continuing install, this will prompt you for your password if you're not already running as root and you didn't enable passwordless sudo.  Please do not run me as root!"
 if [[ `whoami` == "root" ]]; then
@@ -8,13 +8,12 @@ if [[ `whoami` == "root" ]]; then
 fi
 ROOT_SQL_PASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 CURUSER=$(whoami)
-sudo timedatectl set-timezone Etc/UTC
 sudo apt-get update
-sudo DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
+#sudo DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
 sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password $ROOT_SQL_PASS"
 sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $ROOT_SQL_PASS"
 echo -e "[client]\nuser=root\npassword=$ROOT_SQL_PASS" | sudo tee /root/.my.cnf
-sudo DEBIAN_FRONTEND=noninteractive apt-get -y install git python-virtualenv python3-virtualenv curl ntp build-essential screen cmake pkg-config libboost-all-dev libevent-dev libunbound-dev libminiupnpc-dev libunwind8-dev liblzma-dev libldns-dev libexpat1-dev libgtest-dev mysql-server lmdb-utils libzmq3-dev
+sudo DEBIAN_FRONTEND=noninteractive apt-get -y install git doxygen python-virtualenv python3-virtualenv curl ntp build-essential screen cmake pkg-config libboost-all-dev libevent-dev libunbound-dev libminiupnpc-dev libunwind8-dev liblzma-dev libldns-dev libexpat1-dev libgtest-dev mysql-server lmdb-utils libzmq3-dev
 cd ~
 git clone https://github.com/Snipa22/nodejs-pool.git  # Change this depending on how the deployment goes.
 cd /usr/src/gtest
@@ -26,9 +25,8 @@ sudo systemctl enable ntp
 cd /usr/local/src
 sudo git clone https://github.com/monero-project/monero.git
 cd monero
-sudo git checkout v0.11.1.0
-curl https://raw.githubusercontent.com/Snipa22/nodejs-pool/master/deployment/monero_daemon.patch | sudo git apply -v
-sudo make -j$(nproc)
+sudo git checkout v0.12.0.0
+sudo make 
 sudo cp ~/nodejs-pool/deployment/monero.service /lib/systemd/system/
 sudo useradd -m monerodaemon -d /home/monerodaemon
 BLOCKCHAIN_DOWNLOAD_DIR=$(sudo -u monerodaemon mktemp -d)
@@ -48,7 +46,7 @@ openssl req -subj "/C=IT/ST=Pool/L=Daemon/O=Mining Pool/CN=mining.pool" -newkey 
 mkdir ~/pool_db/
 sed -r "s/(\"db_storage_path\": ).*/\1\"\/home\/$CURUSER\/pool_db\/\",/" config_example.json > config.json
 cd ~
-git clone https://github.com/mesh0000/poolui.git
+git clone https://github.com/jonrdouglas/poolui.git
 cd poolui
 npm install
 ./node_modules/bower/bin/bower update
