@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "This assumes that you are doing a green-field install and have already ran "sudo apt upgrade" .  If not, please exit in the next 15 seconds."
+echo "This assumes that you are doing a green-field install." .  If not, please exit in the next 15 seconds. I will reboot one time and tell you when."
 sleep 15
 echo "Continuing install, this will prompt you for your password if you're not already running as root and you didn't enable passwordless sudo.  Please do not run me as root!"
 if [[ `whoami` == "root" ]]; then
@@ -10,7 +10,10 @@ ROOT_SQL_PASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 CURUSER=$(whoami)
 sudo echo "$CURUSER ALL=(ALL) NOPASSWD:ALL" | sudo tee --append /etc/sudoers
 sudo apt-get update
-#sudo DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
+sudo DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
+echo "I am going to reboot now. When I am back up, please run the deploy.bash script one more time"
+sleep 10
+sudo reboot
 sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password $ROOT_SQL_PASS"
 sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $ROOT_SQL_PASS"
 echo -e "[client]\nuser=root\npassword=$ROOT_SQL_PASS" | sudo tee /root/.my.cnf
